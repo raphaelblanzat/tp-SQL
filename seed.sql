@@ -19,3 +19,20 @@ insert into ressources (id_ressource, nom, unite) values
 (18, 'Riz', 'kg'),
 (19, 'Coton', 'kg'),
 (20, 'Soie', 'kg');
+
+insert into categories_batiments (id_categorie, nom, id_parent) values
+(1, 'Ressources', null),
+(2, 'Production', 1),
+(3, 'Extraction', 1),
+(4, 'Pêche', 3),
+(5, 'Agriculture', 3),
+(6, 'Industrie', 1),
+(7, 'Transformation', 6),
+(8, 'Construction', 1),
+(9, 'Habitation', 8),
+(10, 'Commerce', 1),
+(11, 'Elevage', 5),
+(12, 'Fonderie', 6),
+(13, 'Scierie', 7),
+(14, 'Stockage', 1),
+(15, 'Énergie', 1);
