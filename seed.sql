@@ -36,3 +36,24 @@ insert into categories_batiments (id_categorie, nom, id_parent) values
 (13, 'Scierie', 7),
 (14, 'Stockage', 1),
 (15, 'Énergie', 1);
+
+insert into batiments (id_batiment, nom, niveau, id_categorie) values
+(1, 'Scierie', 1, 13),
+(2, 'Carrière', 1, 3),
+(3, 'Mine de fer', 1, 3),
+(4, 'Mine d''or', 1, 3),
+(5, 'Ferme', 1, 5),
+(6, 'Pêcherie', 1, 4),
+(7, 'Moulin à vent', 1, 7),
+(8, 'Fonderie', 1, 12),
+(9, 'Entrepôt', 1, 14),
+(10, 'Maison', 1, 9),
+(11, 'Marché', 1, 10),
+(12, 'Centrale électrique', 1, 15),
+(13, 'Mine de charbon', 1, 3),
+(14, 'Mine de cuivre', 1, 3),
+(15, 'Mine d''argent', 1, 3),
+(16, 'Mine de platine', 1, 3),
+(17, 'Mine d''uranium', 1, 3),
+(18, 'Mine de diamant', 1, 3),
+(19, 'Puits de pétrole', 1, 3);
