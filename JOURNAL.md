@@ -67,24 +67,52 @@ L'insertion des données a également demandé de vérifier la cohérence des id
 
 Enfin, les scripts d'insertion doivent être exécutés avec attention : si les mêmes données sont insérées plusieurs fois, des erreurs de clés primaires peuvent apparaître. Il faut donc vérifier les données déjà présentes avant de relancer les insertions.
 
-## 6. Analyses SQL prévues
+## 6. Résultats des requêtes
 
-Le projet prévoit plusieurs analyses à partir des événements de production :
+Résultats relevés sur le jeu de données corrigé, après exécution des 13 requêtes.
 
-- Classer les bâtiments ou les ressources selon leur production.
-- Identifier les meilleurs éléments dans différents groupes.
-- Calculer des totaux cumulés au fil du temps.
-- Étudier l'évolution de la production entre plusieurs périodes.
-- Comparer les résultats à des moyennes et calculer des indicateurs statistiques.
-- Repérer les périodes sans activité.
-- Construire des synthèses permettant de suivre l'économie du jeu.
+| Requête | Ce qu'elle apprend sur les données |
+|---|---|
+| Q1 | Pour le bois, l'entrepôt est premier avec 4 600 m³, devant la scierie avec 600 m³. |
+| Q2 | Dans les catégories du jeu de données, beaucoup de couples catégorie/ressource n'ont qu'un producteur : le top 3 retourne alors moins de trois lignes. |
+| Q3 | Le cumul de bois atteint 5 200 m³ à la fin des événements de mai. |
+| Q4 | Le bois passe de 1 000 m³ en janvier à 1 020 en février, soit +2 %. Le premier mois n'a pas de pourcentage de comparaison. |
+| Q5 | L'entrepôt fournit 88,46 % du bois et la scierie 11,54 % ; les parts sont calculées au sein d'une même ressource. |
+| Q6 | La moyenne mobile du bois vaut 1 020 m³ en mars, moyenne de janvier (1 000), février (1 020) et mars (1 040). |
+| Q7 | L'entrepôt, la fonderie, le marché et la maison dépassent la moyenne des producteurs de leur ressource respective. |
+| Q8 | Les 15 catégories sont accessibles depuis la racine Ressources ; la branche Scierie descend jusqu'au niveau 4. |
+| Q9 | Juin à décembre 2024 n'ont aucune production ; les ressources sans événements restent également visibles à zéro. |
+| Q10 | Pour la scierie et le bois, le tableau affiche 100, 110, 120, 130 puis 140 m³ de janvier à mai. |
+| Q11 | Le bois a deux sous-totaux de catégories et un total ressource de 5 200 m³ ; les lignes de synthèse sont libellées. |
+| Q12 | Moyenne et médiane sont égales pour chaque couple bâtiment/ressource du jeu fourni (par exemple 120 m³ pour la scierie). Les séries sont symétriques et régulières : aucune des deux mesures ne représente mieux ces données. En présence de valeurs extrêmes, la médiane serait moins sensible. |
+| Q13 | Le cumul de bois reste à 5 200 m³ après mai ; la moyenne mobile diminue avec les mois vides et atteint zéro en août. |
 
-Ces analyses doivent permettre de mieux comprendre l'évolution de la production et de démontrer l'utilisation de fonctionnalités avancées de PostgreSQL.
+## 7. Relecture et corrections du 13 octobre 2026
 
-## 7. Bilan
+Relecture réalisée avec l'aide de Codex, à partir du sujet du TP2 présent sur le Bureau.
 
-La première étape du projet a permis de construire une base de données relationnelle cohérente, avec quatre tables liées entre elles, des contraintes d'intégrité et un jeu de données de test.
+- Les scripts initiaux s'exécutaient et les effectifs respectaient le palier 1.
+- Cinq événements de poisson étaient rattachés au puits de pétrole : ils ont été réaffectés à la pêcherie. Le nombre d'événements et leurs quantités sont conservés.
+- Le chargement des données est maintenant atomique grâce à `BEGIN` et `COMMIT`.
+- Les totaux, classements, parts et statistiques respectent désormais les unités : chaque analyse est partitionnée ou groupée par ressource et affiche son unité. Un total de kg, litres et m³ n'avait pas de sens métier.
+- Les calculs mensuels Q4 et Q6 incluent les mois sans activité pour comparer de véritables mois consécutifs.
+- Q10 affiche zéro pour les mois vides. Q11 utilise `GROUPING` pour nommer les sous-totaux et les identifiants pour distinguer les noms identiques.
+- `verification.sql` ajoute des contrôles reproductibles sur les exigences de données et l'accessibilité de la hiérarchie.
 
-La suite du travail consiste à développer et tester les requêtes analytiques, puis à compléter les fonctionnalités avancées demandées dans le sujet du TP.
+## 8. Vérifications exécutées
 
-Le projet permet de mettre en pratique la conception d'une base relationnelle, la gestion des relations entre les tables et l'utilisation de SQL pour analyser des données.
+Les scripts ont été exécutés avec **PGlite**, un moteur PostgreSQL embarqué, dans une base temporaire. Le serveur PostgreSQL/pgAdmin utilisé pour l'oral n'a pas été lancé sur ce Mac.
+
+- Exécution du schéma, des données, du fichier de vérification et des 13 requêtes.
+- Vérification des 100 événements sur cinq mois, des effectifs des tables et des 15 catégories accessibles.
+- Vérification des parts de production, des totaux par ressource et des libellés de sous-totaux.
+- Retrait temporaire des événements de février : Q4 conserve février à zéro, affiche −100 % puis `NULL` lors de la reprise depuis zéro ; Q6 calcule la moyenne de mars sur les trois mois (680 m³ pour le bois).
+- Création temporaire de noms identiques : les bâtiments et catégories restent distincts dans Q11.
+- Tentatives d'insertions invalides : les contraintes UNIQUE, CHECK, FOREIGN KEY et NOT NULL rejettent les données attendues.
+- Création temporaire d'un cycle de catégories : `verification.sql` le détecte. Les modifications de ces scénarios ont été annulées.
+
+## 9. Limites et préparation de l'oral
+
+Le jeu de données est volontairement simple : progression régulière, cinq mois actifs et plusieurs groupes avec un seul producteur. Il permet d'expliquer les techniques, mais ne représente pas une économie réaliste complète. Aucun prix ne permet de convertir toutes les ressources en une valeur monétaire commune.
+
+Chaque membre doit relire les commentaires et savoir expliquer les requêtes ligne par ligne, notamment `PARTITION BY`, la différence entre agrégation et fenêtre, le calendrier complété par `LEFT JOIN`, et la récursivité. Préparer Q5, Q8 et Q13 pour la démonstration, puis charger les fichiers sur l'ordinateur de l'oral avec les commandes du README.
